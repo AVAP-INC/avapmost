@@ -24,7 +24,7 @@ const Header = ({alternateLink, backButtonURL, onBackButtonClick}: HeaderProps) 
     const {SiteName} = useSelector(getConfig);
     const license = useSelector(getLicense);
 
-    const ariaLabel = SiteName || 'Mattermost';
+    const ariaLabel = SiteName || 'Avapmost';
 
     let freeBanner = null;
     if (license.IsLicensed === 'false') {
@@ -34,7 +34,7 @@ const Header = ({alternateLink, backButtonURL, onBackButtonClick}: HeaderProps) 
     }
 
     let title: React.ReactNode = SiteName;
-    if (title === 'Mattermost') {
+    if (title === 'Mattermost' || title === 'Avapmost') {
         if (freeBanner) {
             title = '';
         } else {
