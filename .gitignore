@@ -162,5 +162,7 @@ docker-compose.override.yaml
 
 **/CLAUDE.local.md
 **/CLAUDE.md
+!/CLAUDE.md
+!/.claude/
 .cursorrules
 .cursor/

@@ -204,10 +204,10 @@ var config = {
         // Generate manifest.json, honouring any configured publicPath. This also handles injecting
         // <link rel="apple-touch-icon" ... /> and <meta name="apple-*" ... /> tags into root.html.
         new WebpackPwaManifest({
-            name: 'Mattermost',
-            short_name: 'Mattermost',
+            name: 'Avapmost',
+            short_name: 'Avapmost',
             start_url: '..',
-            description: 'Mattermost is an open source, self-hosted Slack-alternative',
+            description: 'Avapmost is an open source, self-hosted messaging platform',
             background_color: '#ffffff',
             inject: true,
             ios: true,
