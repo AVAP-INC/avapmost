@@ -7,7 +7,7 @@ import styled from 'styled-components';
 
 import {getLicense} from 'mattermost-redux/selectors/entities/general';
 
-import Logo from 'components/common/svg_images_components/logo_dark_blue_svg';
+import launcherIcon from 'images/avapmost_launcher.png';
 
 import {LicenseSkus} from 'utils/constants';
 
@@ -20,10 +20,12 @@ const ProductBrandingFreeEditionContainer = styled.span`
     }
 `;
 
-const StyledLogo = styled(Logo)`
-    path {
-        fill: rgba(var(--sidebar-text-rgb), 0.75);
-    }
+const ProductBrandingHeading = styled.span`
+    font-family: 'Metropolis';
+    font-size: 16px;
+    line-height: 24px;
+    font-weight: bold;
+    color: rgba(var(--sidebar-text-rgb), 0.9);
 `;
 
 const Badge = styled.span`
@@ -53,10 +55,14 @@ const ProductBrandingFreeEdition = (): JSX.Element => {
 
     return (
         <ProductBrandingFreeEditionContainer tabIndex={-1}>
-            <StyledLogo
-                width={116}
-                height={20}
+            <img
+                src={launcherIcon}
+                height={24}
+                width={24}
+                style={{borderRadius: '6px'}}
+                alt='Avapmost'
             />
+            <ProductBrandingHeading>{'Avapmost'}</ProductBrandingHeading>
             <Badge>{badgeText}</Badge>
         </ProductBrandingFreeEditionContainer>
     );
