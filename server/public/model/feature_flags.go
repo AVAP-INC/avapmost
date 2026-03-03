@@ -140,7 +140,7 @@ func (f *FeatureFlags) SetDefaults() {
 
 	f.EnableAIRecaps = false
 
-	f.CJKSearch = false
+	f.CJKSearch = true
 }
 
 // ToMap returns the feature flags as a map[string]string
