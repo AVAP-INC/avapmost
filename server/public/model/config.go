@@ -459,6 +459,9 @@ type ServiceSettings struct {
 	EnableWebHubChannelIteration                      *bool   `access:"write_restrictable,cloud_restrictable"` // telemetry: none
 	FrameAncestors                                    *string `access:"write_restrictable,cloud_restrictable"` // telemetry: none
 	DeleteAccountLink                                 *string `access:"site_users_and_teams,write_restrictable,cloud_restrictable"`
+
+	// Avapmost: search plugin endpoint (empty = use built-in default)
+	AvapSearchEndpoint *string `access:"write_restrictable"`
 }
 
 var MattermostGiphySdkKey string
@@ -1029,6 +1032,10 @@ func (s *ServiceSettings) SetDefaults(isUpdate bool) {
 
 	if s.DeleteAccountLink == nil {
 		s.DeleteAccountLink = NewPointer("")
+	}
+
+	if s.AvapSearchEndpoint == nil {
+		s.AvapSearchEndpoint = NewPointer("/plugins/com.avap.avapmost-search/api/v1/search/webapp")
 	}
 }
 
@@ -3501,6 +3508,11 @@ func (s *PluginSettings) SetDefaults(ls LogSettings) {
 	if s.PluginStates[PluginIdAI] == nil {
 		// Enable the AI plugin by default
 		s.PluginStates[PluginIdAI] = &PluginState{Enable: true}
+	}
+
+	if s.PluginStates["com.avap.avapmost-search"] == nil {
+		// Enable the Avapmost Search plugin by default
+		s.PluginStates["com.avap.avapmost-search"] = &PluginState{Enable: true}
 	}
 
 	if s.EnableMarketplace == nil {

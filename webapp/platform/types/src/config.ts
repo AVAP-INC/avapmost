@@ -242,6 +242,9 @@ export type ClientConfig = {
     AutoTranslationLanguages: string;
     EnableAutoTranslation: string;
     RestrictDMAndGMAutotranslation: string;
+
+    // Avapmost
+    AvapSearchEndpoint: string;
 };
 
 export type License = {

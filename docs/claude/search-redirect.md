@@ -30,3 +30,12 @@ Must maintain PostList compatibility:
 
 ## Fallback
 If plugin unavailable, fall back to default database search.
+
+## Configuration
+The plugin endpoint URL is configurable via `ServiceSettings.AvapSearchEndpoint` in config.json
+or `MM_SERVICESETTINGS_AVAPSEARCHENDPOINT` environment variable.
+Default: `/plugins/com.avap.avapmost-search/api/v1/search/webapp`
+
+## Developer Guide
+For external developers who want to replicate this pattern:
+See `docs/search-plugin-extension.md`
