@@ -1,0 +1,95 @@
+{
+    "id": "com.avap.avapmost-search",
+    "name": "Avapmost Search",
+    "description": "Elasticsearch を使用した日本語対応全文検索プラグイン",
+    "homepage_url": "https://github.com/AVAP-INC/avapmost",
+    "version": "0.1.0",
+    "min_server_version": "9.0.0",
+    "server": {
+        "executables": {
+            "linux-amd64": "server/dist/plugin-linux-amd64",
+            "linux-arm64": "server/dist/plugin-linux-arm64"
+        }
+    },
+    "webapp": {
+        "bundle_path": "webapp/dist/main.js"
+    },
+    "settings_schema": {
+        "header": "Avapmost Search プラグイン設定",
+        "footer": "",
+        "settings": [
+            {
+                "key": "ElasticsearchURL",
+                "display_name": "Elasticsearch URL",
+                "type": "text",
+                "help_text": "Elasticsearch サーバーの URL (例: http://localhost:9200)",
+                "default": "http://localhost:9200"
+            },
+            {
+                "key": "ElasticsearchIndex",
+                "display_name": "Elasticsearch インデックス名",
+                "type": "text",
+                "help_text": "ポストを格納するインデックス名",
+                "default": "avapmost_posts"
+            },
+            {
+                "key": "ElasticsearchUsername",
+                "display_name": "Elasticsearch ユーザー名",
+                "type": "text",
+                "help_text": "Basic 認証ユーザー名 (不要な場合は空)",
+                "default": ""
+            },
+            {
+                "key": "ElasticsearchPassword",
+                "display_name": "Elasticsearch パスワード",
+                "type": "text",
+                "help_text": "Basic 認証パスワード",
+                "secret": true,
+                "default": ""
+            },
+            {
+                "key": "AnthropicAPIKey",
+                "display_name": "Anthropic API Key",
+                "type": "text",
+                "help_text": "チャット機能に使用する Anthropic API キー",
+                "secret": true,
+                "default": ""
+            },
+            {
+                "key": "EmbeddingAPIURL",
+                "display_name": "Embedding API URL",
+                "type": "text",
+                "help_text": "OpenAI 互換の Embedding API エンドポイント (例: https://api.openai.com/v1/embeddings)。空の場合はセマンティック検索無効。",
+                "default": ""
+            },
+            {
+                "key": "EmbeddingAPIKey",
+                "display_name": "Embedding API Key",
+                "type": "text",
+                "help_text": "Embedding API の認証キー",
+                "secret": true,
+                "default": ""
+            },
+            {
+                "key": "EmbeddingModel",
+                "display_name": "Embedding モデル名",
+                "type": "text",
+                "help_text": "使用するモデル名 (例: text-embedding-3-small)",
+                "default": "text-embedding-3-small"
+            },
+            {
+                "key": "EmbeddingDimensions",
+                "display_name": "Embedding 次元数",
+                "type": "text",
+                "help_text": "ベクトルの次元数。モデルに合わせて設定 (デフォルト: 1536)",
+                "default": "1536"
+            },
+            {
+                "key": "ReIndexSection",
+                "display_name": "全件再インデックス",
+                "type": "custom",
+                "help_text": "全チャンネルのポストを Elasticsearch に再インデックスします"
+            }
+        ]
+    }
+}
