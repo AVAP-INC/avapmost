@@ -1,39 +1,20 @@
 // Copyright (c) 2015-present Mattermost, Inc. All Rights Reserved.
 // See LICENSE.txt for license information.
 
-import classNames from 'classnames';
 import React from 'react';
 import {FormattedMessage, defineMessages} from 'react-intl';
 
-import type {StatusOK} from '@mattermost/types/client4';
 import type {ClientLicense, EnvironmentConfig} from '@mattermost/types/config';
 import type {ServerError} from '@mattermost/types/errors';
 import type {ServerLimits} from '@mattermost/types/limits';
 import type {GetFilteredUsersStatsOpts, UsersStats} from '@mattermost/types/users';
+import type {StatusOK} from '@mattermost/types/client4';
 
 import type {ActionResult} from 'mattermost-redux/types/actions';
 
-import ExternalLink from 'components/external_link';
 import AdminHeader from 'components/widgets/admin_console/admin_header';
 
-import {AboutLinks, CloudLinks, LicenseSkus, ModalIdentifiers} from 'utils/constants';
-import {isLicenseExpired, isLicenseExpiring, isTrialLicense, licenseSKUWithFirstLetterCapitalized, isEnterpriseLicense} from 'utils/license_utils';
-
 import type {ModalData} from 'types/actions';
-
-import EnterpriseEditionLeftPanel, {messages as enterpriseEditionLeftPanelMessages} from './enterprise_edition/enterprise_edition_left_panel';
-import EnterpriseEditionRightPanel from './enterprise_edition/enterprise_edition_right_panel';
-import ConfirmLicenseRemovalModal from './modals/confirm_license_removal_modal';
-import EELicenseModal from './modals/ee_license_modal';
-import UploadLicenseModal from './modals/upload_license_modal';
-import RenewLinkCard from './renew_license_card/renew_license_card';
-import StarterLeftPanel, {messages as licenseSettingsStarterEditionMessages} from './starter_edition/starter_left_panel';
-import StarterRightPanel from './starter_edition/starter_right_panel';
-import TeamEditionLeftPanel from './team_edition/team_edition_left_panel';
-import TeamEditionRightPanel from './team_edition/team_edition_right_panel';
-import TrialBanner from './trial_banner/trial_banner';
-import TrialLicenseCard from './trial_license_card/trial_license_card';
-import UserSeatAlertBanner from './user_seat_alert_banner';
 
 import './license_settings.scss';
 
@@ -70,285 +51,17 @@ const messages = defineMessages({
 });
 
 export const searchableStrings = [
-    licenseSettingsStarterEditionMessages.key,
-    enterpriseEditionLeftPanelMessages.keyRemove,
     messages.title,
 ];
 
-type State = {
-    fileSelected: boolean;
-    file: File | null;
-    serverError: string | null;
-    gettingTrialError: string | null;
-    gettingTrialResponseCode: number | null;
-    gettingTrial: boolean;
-    removing: boolean;
-    upgradingPercentage: number;
-    upgradeError: string | null;
-    restarting: boolean;
-    restartError: string | null;
-    clickNormalUpgradeBtn: boolean;
-    upgradeDisabled: boolean;
-};
-export default class LicenseSettings extends React.PureComponent<Props, State> {
-    private interval: ReturnType<typeof setInterval> | null;
-    private fileInputRef: React.RefObject<HTMLInputElement>;
-    constructor(props: Props) {
-        super(props);
-
-        this.interval = null;
-        this.state = {
-            fileSelected: false,
-            file: null,
-            serverError: null,
-            gettingTrialResponseCode: null,
-            gettingTrialError: null,
-            gettingTrial: false,
-            removing: false,
-            upgradingPercentage: 0,
-            upgradeError: null,
-            restarting: false,
-            restartError: null,
-            clickNormalUpgradeBtn: false,
-            upgradeDisabled: false,
-        };
-        this.fileInputRef = React.createRef();
-    }
-
+export default class LicenseSettings extends React.PureComponent<Props> {
     componentDidMount() {
-        if (this.props.enterpriseReady) {
-            this.props.actions.getPrevTrialLicense();
-        } else {
-            this.props.actions.isAllowedToUpgradeToEnterprise().then(({error}) => {
-                this.setState({upgradeDisabled: Boolean(error?.message), upgradeError: error?.message});
-                if (!error?.message) {
-                    this.reloadPercentage();
-                }
-            });
-        }
         this.props.actions.getLicenseConfig();
-        this.props.actions.getFilteredUsersStats({include_bots: false, include_deleted: false});
     }
-
-    componentDidUpdate(prevProps: Props, prevState: State) {
-        if (prevState.fileSelected !== this.state.fileSelected && this.state.fileSelected) {
-            this.props.actions.openModal({
-                modalId: ModalIdentifiers.UPLOAD_LICENSE,
-                dialogType: UploadLicenseModal,
-                dialogProps: {
-                    fileObjFromProps: this.state.file,
-                },
-            });
-        }
-        this.setState({fileSelected: false, file: null});
-    }
-
-    componentWillUnmount() {
-        if (this.interval) {
-            clearInterval(this.interval);
-        }
-    }
-
-    reloadPercentage = async () => {
-        const {percentage, error} = await this.props.actions.upgradeToE0Status();
-        if (percentage === 100 || error) {
-            if (this.interval) {
-                clearInterval(this.interval);
-                this.interval = null;
-            }
-        } else if (percentage > 0 && !this.interval) {
-            this.interval = setInterval(this.reloadPercentage, 2000);
-        }
-        this.setState({upgradingPercentage: percentage || 0, upgradeError: error as string});
-    };
-
-    handleChange = () => {
-        const element = this.fileInputRef.current;
-        if (element?.files?.length) {
-            this.setState({fileSelected: true, file: element.files[0]});
-        }
-    };
-
-    openEELicenseModal = async () => {
-        this.props.actions.openModal({
-            modalId: ModalIdentifiers.ENTERPRISE_EDITION_LICENSE,
-            dialogType: EELicenseModal,
-        });
-    };
-
-    confirmLicenseRemoval = async () => {
-        this.props.actions.openModal({
-            modalId: ModalIdentifiers.CONFIRM_LICENSE_REMOVAL,
-            dialogType: ConfirmLicenseRemovalModal,
-            dialogProps: {handleRemove: this.handleRemove, currentLicenseSKU: licenseSKUWithFirstLetterCapitalized(this.props.license)},
-        });
-    };
-
-    handleRemove = async (e: React.MouseEvent<HTMLButtonElement>) => {
-        e.preventDefault();
-
-        this.setState({removing: true});
-
-        const {error} = await this.props.actions.removeLicense();
-        if (error) {
-            this.setState({serverError: error.message, removing: false});
-            return;
-        }
-
-        await Promise.all([
-            this.props.actions.getPrevTrialLicense(),
-            this.props.actions.getLicenseConfig(),
-        ]);
-
-        await this.props.actions.getServerLimits();
-
-        this.setState({serverError: null, removing: false});
-    };
-
-    handleUpgrade = async (e?: React.MouseEvent<HTMLButtonElement>) => {
-        if (e) {
-            e.preventDefault();
-        }
-        if (this.state.upgradingPercentage > 0) {
-            return;
-        }
-        try {
-            await this.props.actions.upgradeToE0();
-            this.setState({upgradingPercentage: 1});
-            await this.reloadPercentage();
-        } catch (error: any) {
-            this.setState({upgradeError: error.message, upgradingPercentage: 0});
-        }
-    };
-
-    checkRestarted = () => {
-        this.props.actions.ping().then(() => {
-            window.location.reload();
-        }).catch(() => {
-            setTimeout(this.checkRestarted, 1000);
-        });
-    };
-
-    handleRestart = async (e?: React.MouseEvent<HTMLButtonElement>) => {
-        if (e) {
-            e.preventDefault();
-        }
-        this.setState({restarting: true});
-        try {
-            await this.props.actions.restartServer();
-        } catch (err) {
-            this.setState({restarting: false, restartError: err as string});
-        }
-        setTimeout(this.checkRestarted, 1000);
-    };
-
-    setClickNormalUpgradeBtn = () => {
-        this.setState({clickNormalUpgradeBtn: true});
-    };
-
-    currentPlan = (
-        <div className='current-plan-legend'>
-            <i className='icon-check-circle'/>
-            {'Current Plan'}
-        </div>
-    );
-
-    createLink = (link: string, text: string) => {
-        return (
-            <ExternalLink
-                location='license_settings'
-                id='privacyLink'
-                href={link}
-            >
-                {text}
-            </ExternalLink>
-        );
-    };
-
-    termsAndPolicy = (
-        <div className='terms-and-policy'>
-            {'See also '}
-            {this.createLink(AboutLinks.TERMS_OF_SERVICE, 'Enterprise Edition Terms of Use')}
-            {' and '}
-            {this.createLink(AboutLinks.PRIVACY_POLICY, 'Privacy Policy')}
-        </div>
-    );
-
-    comparePlans = (this.props.license.SkuShortName === LicenseSkus.Entry ? null : (
-        <div className='compare-plans-text'>
-            {'Curious about upgrading? '}
-            {this.createLink(CloudLinks.PRICING, 'Compare Plans')}
-        </div>
-    ));
 
     render() {
-        const {license, upgradedFromTE, isDisabled} = this.props;
-
-        let leftPanel = null;
-        let rightPanel = null;
-
-        if (!this.props.enterpriseReady) { // Team Edition
-            // Note: DO NOT LOCALISE THESE STRINGS. Legally we can not since the license is in English.
-            leftPanel = (
-                <TeamEditionLeftPanel
-                    openEELicenseModal={this.openEELicenseModal}
-                />
-            );
-
-            rightPanel = (
-                <TeamEditionRightPanel
-                    upgradingPercentage={this.state.upgradingPercentage}
-                    upgradeError={this.state.upgradeError}
-                    restartError={this.state.restartError}
-                    handleRestart={this.handleRestart}
-                    handleUpgrade={this.handleUpgrade}
-                    restarting={this.state.restarting}
-                    openEEModal={this.openEELicenseModal}
-                    setClickNormalUpgradeBtn={this.setClickNormalUpgradeBtn}
-                    upgradeDisabled={this.state.upgradeDisabled}
-                />
-            );
-        } else if (license.IsLicensed === 'true') {
-            // Note: DO NOT LOCALISE THESE STRINGS. Legally we can not since the license is in English.
-            leftPanel = (
-                <EnterpriseEditionLeftPanel
-                    openEELicenseModal={this.openEELicenseModal}
-                    upgradedFromTE={upgradedFromTE}
-                    license={license}
-                    isTrialLicense={isTrialLicense(license)}
-                    handleRemove={this.confirmLicenseRemoval}
-                    isDisabled={isDisabled}
-                    removing={this.state.removing}
-                    fileInputRef={this.fileInputRef}
-                    handleChange={this.handleChange}
-                    statsActiveUsers={this.props.totalUsers || 0}
-                    isLicenseSetByEnvVar={Boolean(this.props.environmentConfig?.ServiceSettings?.LicenseFileLocation)}
-                />
-            );
-
-            rightPanel = (
-                <EnterpriseEditionRightPanel
-                    isTrialLicense={isTrialLicense(license)}
-                    license={license}
-                />
-            );
-        } else {
-            // Note: DO NOT LOCALISE THESE STRINGS. Legally we can not since the license is in English.
-            // This is Mattermost Starter (Already downloaded the binary but no license has been set, or ended the trial period)
-            leftPanel = (
-                <StarterLeftPanel
-                    openEELicenseModal={this.openEELicenseModal}
-                    currentPlan={this.currentPlan}
-                    upgradedFromTE={this.props.upgradedFromTE}
-                    fileInputRef={this.fileInputRef}
-                    handleChange={this.handleChange}
-                />
-            );
-
-            rightPanel = (
-                <StarterRightPanel/>
-            );
-        }
+        const {license} = this.props;
+        const currentYear = new Date().getFullYear();
 
         return (
             <div className='wrapper--fixed'>
@@ -357,44 +70,56 @@ export default class LicenseSettings extends React.PureComponent<Props, State> {
                 </AdminHeader>
                 <div className='admin-console__wrapper'>
                     <div className='admin-console__content'>
-                        <div className='admin-console__banner_section'>
-                            <UserSeatAlertBanner
-                                license={license}
-                                totalUsers={this.props.totalUsers}
-                                location='license_settings'
-                            />
-                            {!this.state.clickNormalUpgradeBtn && (license.IsLicensed !== 'true') &&
-                                this.props.prevTrialLicense?.IsLicensed !== 'true' &&
-                                <TrialBanner
-                                    isDisabled={isDisabled}
-                                    gettingTrialResponseCode={this.state.gettingTrialResponseCode}
-                                    gettingTrialError={this.state.gettingTrialError}
-                                    gettingTrial={this.state.gettingTrial}
-                                    enterpriseReady={this.props.enterpriseReady}
-                                    upgradingPercentage={this.state.upgradingPercentage}
-                                    handleUpgrade={this.handleUpgrade}
-                                    upgradeError={this.state.upgradeError}
-                                    restartError={this.state.restartError}
-                                    handleRestart={this.handleRestart}
-                                    restarting={this.state.restarting}
-                                    openEEModal={this.openEELicenseModal}
-                                    upgradeDisabled={this.state.upgradeDisabled}
-                                />
-                            }
-                            {this.renewLicenseCard()}
-                        </div>
                         <div className='top-wrapper'>
                             <div className='left-panel'>
                                 <div className='panel-card'>
-                                    {leftPanel}
+                                    {/* NOTE: Do not localise these strings. Legally we cannot since the license is in English. */}
+                                    <h3 style={{marginTop: 0}}>{'Avapmost Edition'}</h3>
+                                    <p>
+                                        {'Avapmost is a fork of '}
+                                        <strong>{'Mattermost®'}</strong>
+                                        {', an open source messaging platform developed by Mattermost, Inc. This fork is developed and maintained by AVAP-INC.'}
+                                    </p>
+                                    <p>
+                                        {'© '}
+                                        {currentYear}
+                                        {' AVAP Co.,Ltd | Based on Mattermost © Mattermost, Inc.'}
+                                    </p>
+                                    <hr style={{borderColor: 'rgba(var(--center-channel-color-rgb), 0.12)', margin: '16px 0'}}/>
+                                    <h4 style={{marginTop: 0}}>{'Mattermost License'}</h4>
+                                    <p>{'When using Mattermost Team Edition, the software is offered under a Mattermost MIT Compiled License. See MIT-COMPILED-LICENSE.md in your root install directory for details.'}</p>
+                                    <p>{'When using Mattermost Enterprise Edition, the software is offered under a commercial license. See the Enterprise Edition License for details.'}</p>
+                                    <p>{'See NOTICE.txt for information about open source software used in the system.'}</p>
                                 </div>
-                                {(!isTrialLicense(license)) && this.termsAndPolicy}
                             </div>
                             <div className='right-panel'>
-                                <div className={classNames('panel-card', {entry: license.SkuShortName === LicenseSkus.Entry})}>
-                                    {rightPanel}
+                                <div className='panel-card'>
+                                    {/* NOTE: Do not localise these strings. Legally we cannot since the license is in English. */}
+                                    <h4 style={{marginTop: 0}}>
+                                        {license.IsLicensed === 'true' ? 'Licensed' : 'Unlicensed (Team Edition)'}
+                                    </h4>
+                                    {license.IsLicensed === 'true' ? (
+                                        <div>
+                                            {license.SkuName && <p><strong>{'SKU: '}</strong>{license.SkuName}</p>}
+                                            {license.Company && <p><strong>{'Company: '}</strong>{license.Company}</p>}
+                                            {license.Users && <p><strong>{'Licensed users: '}</strong>{license.Users}</p>}
+                                            {license.IssuedAt && (
+                                                <p>
+                                                    <strong>{'Issued: '}</strong>
+                                                    {new Date(parseInt(license.IssuedAt, 10)).toLocaleDateString()}
+                                                </p>
+                                            )}
+                                            {license.ExpiresAt && (
+                                                <p>
+                                                    <strong>{'Expires: '}</strong>
+                                                    {new Date(parseInt(license.ExpiresAt, 10)).toLocaleDateString()}
+                                                </p>
+                                            )}
+                                        </div>
+                                    ) : (
+                                        <p>{'No license key loaded. Running as Team Edition.'}</p>
+                                    )}
                                 </div>
-                                {!isEnterpriseLicense(license) && this.comparePlans}
                             </div>
                         </div>
                     </div>
@@ -402,24 +127,4 @@ export default class LicenseSettings extends React.PureComponent<Props, State> {
             </div>
         );
     }
-
-    renewLicenseCard = () => {
-        if (isTrialLicense(this.props.license)) {
-            return (
-                <TrialLicenseCard
-                    license={this.props.license}
-                />
-            );
-        }
-        if (isLicenseExpired(this.props.license) || isLicenseExpiring(this.props.license)) {
-            return (
-                <RenewLinkCard
-                    license={this.props.license}
-                    isLicenseExpired={isLicenseExpired(this.props.license)}
-                    totalUsers={this.props.totalUsers}
-                />
-            );
-        }
-        return null;
-    };
 }

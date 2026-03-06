@@ -46,6 +46,11 @@
                 fill: var(--center-channel-color);
             }
 
+            img {
+                height: 30px;
+                width: auto;
+            }
+
             .freeBadge {
                 position: relative;
                 top: 1px;
@@ -96,8 +101,14 @@
         padding: 0 24px;
 
         .header-main {
-            .header-logo-link svg {
-                width: 145px;
+            .header-logo-link {
+                svg {
+                    width: 145px;
+                }
+
+                img {
+                    height: 26px;
+                }
             }
         }
 

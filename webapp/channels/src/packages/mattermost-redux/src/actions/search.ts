@@ -11,6 +11,7 @@ import {SearchTypes} from 'mattermost-redux/action_types';
 import {Client4} from 'mattermost-redux/client';
 import {getCurrentUserId} from 'mattermost-redux/selectors/entities/users';
 import type {ActionResult, ActionFuncAsync, ThunkActionFunc} from 'mattermost-redux/types/actions';
+import type {GlobalState} from '@mattermost/types/store';
 
 import {getChannelAndMyMember, getChannelMembers} from './channels';
 import {logError} from './errors';
@@ -19,6 +20,49 @@ import {forceLogoutIfNecessary} from './helpers';
 import {getMentionsAndStatusesForPosts, receivedPosts} from './posts';
 
 export const WEBAPP_SEARCH_PER_PAGE = 20;
+
+const AVAPMOST_SEARCH_DEFAULT_ENDPOINT = '/plugins/com.avap.avapmost-search/api/v1/search/webapp';
+
+function getAvapSearchEndpoint(state: GlobalState): string {
+    return state.entities.general.config.AvapSearchEndpoint || AVAPMOST_SEARCH_DEFAULT_ENDPOINT;
+}
+
+/**
+ * Try to search via the Avapmost Search plugin.
+ * The endpoint is configured via ServiceSettings.AvapSearchEndpoint on the server.
+ * Returns PostSearchResults on success, null if the plugin is unavailable (triggers fallback).
+ */
+async function searchViaPlugin(endpoint: string, params: SearchParameter): Promise<PostSearchResults | null> {
+    try {
+        const res = await fetch(
+            endpoint,
+            {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest',
+                },
+                credentials: 'include',
+                body: JSON.stringify({
+                    query: params.terms,
+                    page: params.page ?? 0,
+                    per_page: params.per_page ?? WEBAPP_SEARCH_PER_PAGE,
+                    query_type: 'keyword',
+                }),
+            },
+        );
+        if (!res.ok) {
+            return null;
+        }
+        const data = await res.json() as PostSearchResults;
+        if (!Array.isArray(data.order)) {
+            return null;
+        }
+        return data;
+    } catch {
+        return null;
+    }
+}
 
 export function getMissingChannelsFromPosts(posts: PostList['posts']): ThunkActionFunc<unknown> {
     return async (dispatch, getState) => {
@@ -88,7 +132,9 @@ export function searchPostsWithParams(teamId: string, params: SearchParameter): 
         let posts;
 
         try {
-            posts = await Client4.searchPostsWithParams(teamId, params);
+            // Try Avapmost Search plugin first; fall back to default DB search if unavailable.
+            const pluginResult = await searchViaPlugin(getAvapSearchEndpoint(getState()), params);
+            posts = pluginResult ?? await Client4.searchPostsWithParams(teamId, params);
 
             const profilesAndStatuses = getMentionsAndStatusesForPosts(posts.posts, dispatch, getState);
             const missingChannels = dispatch(getMissingChannelsFromPosts(posts.posts));

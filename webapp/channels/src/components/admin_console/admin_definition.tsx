@@ -414,7 +414,7 @@ const AdminDefinition: AdminDefinitionType = {
             group_detail: {
                 url: `user_management/groups/:group_id(${ID_PATH_PATTERN})`,
                 isDisabled: it.not(it.userHasWritePermissionOnResource(RESOURCE_KEYS.USER_MANAGEMENT.GROUPS)),
-                isHidden: it.not(it.userHasReadPermissionOnResource(RESOURCE_KEYS.USER_MANAGEMENT.GROUPS)),
+                isHidden: () => true,
                 schema: {
                     id: 'GroupDetail',
                     component: GroupDetails,
@@ -423,10 +423,7 @@ const AdminDefinition: AdminDefinitionType = {
             groups: {
                 url: 'user_management/groups',
                 title: defineMessage({id: 'admin.sidebar.groups', defaultMessage: 'Groups'}),
-                isHidden: it.any(
-                    it.not(it.licensedForFeature('LDAPGroups')),
-                    it.not(it.userHasReadPermissionOnResource(RESOURCE_KEYS.USER_MANAGEMENT.GROUPS)),
-                ),
+                isHidden: () => true,
                 isDisabled: it.not(it.userHasWritePermissionOnResource(RESOURCE_KEYS.USER_MANAGEMENT.GROUPS)),
                 schema: {
                     id: 'Groups',
@@ -438,9 +435,7 @@ const AdminDefinition: AdminDefinitionType = {
                 url: 'user_management/groups',
                 isDiscovery: true,
                 title: defineMessage({id: 'admin.sidebar.groups', defaultMessage: 'Groups'}),
-                isHidden: it.any(
-                    it.licensedForFeature('LDAPGroups'),
-                ),
+                isHidden: () => true,
                 schema: {
                     id: 'Groups',
                     name: defineMessage({id: 'admin.group_settings.groupsPageTitle', defaultMessage: 'Groups'}),
@@ -536,11 +531,7 @@ const AdminDefinition: AdminDefinitionType = {
             },
             system_role: {
                 url: `user_management/system_roles/:role_id(${ID_PATH_PATTERN})`,
-                isHidden: it.any(
-                    it.not(it.licensedForFeature('LDAPGroups')),
-                    it.licensedForSku(LicenseSkus.Entry),
-                    it.not(it.userHasReadPermissionOnResource(RESOURCE_KEYS.USER_MANAGEMENT.SYSTEM_ROLES)),
-                ),
+                isHidden: () => true,
                 isDisabled: it.not(it.userHasWritePermissionOnResource(RESOURCE_KEYS.USER_MANAGEMENT.SYSTEM_ROLES)),
                 schema: {
                     id: 'SystemRole',
@@ -550,11 +541,7 @@ const AdminDefinition: AdminDefinitionType = {
             system_roles: {
                 url: 'user_management/system_roles',
                 title: defineMessage({id: 'admin.sidebar.systemRoles', defaultMessage: 'Delegated Granular Administration'}),
-                isHidden: it.any(
-                    it.not(it.licensedForFeature('LDAPGroups')),
-                    it.licensedForSku(LicenseSkus.Entry),
-                    it.not(it.userHasReadPermissionOnResource(RESOURCE_KEYS.USER_MANAGEMENT.SYSTEM_ROLES)),
-                ),
+                isHidden: () => true,
                 isDisabled: it.not(it.userHasWritePermissionOnResource(RESOURCE_KEYS.USER_MANAGEMENT.SYSTEM_ROLES)),
                 schema: {
                     id: 'SystemRoles',
@@ -566,9 +553,7 @@ const AdminDefinition: AdminDefinitionType = {
                 url: 'user_management/system_roles',
                 isDiscovery: true,
                 title: defineMessage({id: 'admin.sidebar.systemRoles', defaultMessage: 'Delegated Granular Administration'}),
-                isHidden: it.any(
-                    it.licensedForFeature('LDAPGroups'),
-                ),
+                isHidden: () => true,
                 schema: {
                     id: 'SystemRoles',
                     name: defineMessage({id: 'admin.permissions.systemRoles', defaultMessage: 'Delegated Granular Administration'}),
@@ -593,7 +578,7 @@ const AdminDefinition: AdminDefinitionType = {
             />
         ),
         sectionTitle: defineMessage({id: 'admin.sidebar.systemAttributes', defaultMessage: 'System Attributes'}),
-        isHidden: it.not(it.userHasReadPermissionOnSomeResources(RESOURCE_KEYS.USER_MANAGEMENT)),
+        isHidden: () => true,
         subsections: {
             system_properties: {
                 url: 'system_attributes/user_attributes',
@@ -2127,10 +2112,7 @@ const AdminDefinition: AdminDefinitionType = {
             mobile_security: {
                 url: 'environment/mobile_security',
                 title: defineMessage({id: 'admin.sidebar.mobileSecurity', defaultMessage: 'Mobile Security'}),
-                isHidden: it.any(
-                    it.not(it.userHasReadPermissionOnResource(RESOURCE_KEYS.ENVIRONMENT.MOBILE_SECURITY)),
-                    it.not(it.minLicenseTier(LicenseSkus.Enterprise)),
-                ),
+                isHidden: () => true,
                 schema: {
                     id: 'MobileSecuritySettings',
                     name: defineMessage({id: 'admin.mobileSecurity.title', defaultMessage: 'Mobile Security'}),
@@ -2275,10 +2257,7 @@ const AdminDefinition: AdminDefinitionType = {
                 url: 'environment/mobile_security_feature_discovery',
                 isDiscovery: true,
                 title: defineMessage({id: 'admin.sidebar.mobileSecurity', defaultMessage: 'Mobile Security'}),
-                isHidden: it.any(
-                    it.not(it.userHasReadPermissionOnResource(RESOURCE_KEYS.ENVIRONMENT.MOBILE_SECURITY)),
-                    it.minLicenseTier(LicenseSkus.Enterprise),
-                ),
+                isHidden: () => true,
                 schema: {
                     id: 'MobileSecurityFeatureDiscoverySettings',
                     name: defineMessage({id: 'admin.mobileSecurity.title', defaultMessage: 'Mobile Security'}),
@@ -2893,10 +2872,7 @@ const AdminDefinition: AdminDefinitionType = {
             announcement_banner: {
                 url: 'site_config/announcement_banner',
                 title: defineMessage({id: 'admin.sidebar.announcement', defaultMessage: 'System-wide Notifications'}),
-                isHidden: it.any(
-                    it.not(it.licensedForFeature('Announcement')),
-                    it.not(it.userHasReadPermissionOnResource(RESOURCE_KEYS.SITE.ANNOUNCEMENT_BANNER)),
-                ),
+                isHidden: () => true,
                 schema: {
                     id: 'AnnouncementSettings',
                     name: defineMessage({id: 'admin.site.announcementBanner', defaultMessage: 'System-wide Notifications'}),
@@ -2954,9 +2930,7 @@ const AdminDefinition: AdminDefinitionType = {
                 url: 'site_config/announcement_banner',
                 isDiscovery: true,
                 title: defineMessage({id: 'admin.sidebar.announcement', defaultMessage: 'System-wide Notifications'}),
-                isHidden: it.any(
-                    it.licensedForFeature('Announcement'),
-                ),
+                isHidden: () => true,
                 schema: {
                     id: 'AnnouncementSettings',
                     name: defineMessage({id: 'admin.site.announcementBanner', defaultMessage: 'System-wide Notifications'}),
@@ -3886,10 +3860,7 @@ const AdminDefinition: AdminDefinitionType = {
             ldap: {
                 url: 'authentication/ldap',
                 title: defineMessage({id: 'admin.sidebar.ldap', defaultMessage: 'AD/LDAP'}),
-                isHidden: it.any(
-                    it.not(it.licensedForFeature('LDAP')),
-                    it.not(it.userHasReadPermissionOnResource(RESOURCE_KEYS.AUTHENTICATION.LDAP)),
-                ),
+                isHidden: () => true,
                 schema: {
                     id: 'LdapWizard',
                     component: LDAPWizard,
@@ -3899,9 +3870,7 @@ const AdminDefinition: AdminDefinitionType = {
                 url: 'authentication/ldap',
                 isDiscovery: true,
                 title: defineMessage({id: 'admin.sidebar.ldap', defaultMessage: 'AD/LDAP'}),
-                isHidden: it.any(
-                    it.licensedForFeature('LDAP'),
-                ),
+                isHidden: () => true,
                 schema: {
                     id: 'LdapSettings',
                     name: defineMessage({id: 'admin.authentication.ldap', defaultMessage: 'AD/LDAP'}),
@@ -3919,10 +3888,7 @@ const AdminDefinition: AdminDefinitionType = {
             saml: {
                 url: 'authentication/saml',
                 title: defineMessage({id: 'admin.sidebar.saml', defaultMessage: 'SAML 2.0'}),
-                isHidden: it.any(
-                    it.not(it.licensedForFeature('SAML')),
-                    it.not(it.userHasReadPermissionOnResource(RESOURCE_KEYS.AUTHENTICATION.SAML)),
-                ),
+                isHidden: () => true,
                 schema: {
                     id: 'SamlSettings',
                     name: defineMessage({id: 'admin.authentication.saml', defaultMessage: 'SAML 2.0'}),
@@ -4376,9 +4342,7 @@ const AdminDefinition: AdminDefinitionType = {
                 url: 'authentication/saml',
                 isDiscovery: true,
                 title: defineMessage({id: 'admin.sidebar.saml', defaultMessage: 'SAML 2.0'}),
-                isHidden: it.any(
-                    it.licensedForFeature('SAML'),
-                ),
+                isHidden: () => true,
                 schema: {
                     id: 'SamlSettings',
                     name: defineMessage({id: 'admin.authentication.saml', defaultMessage: 'SAML 2.0'}),
@@ -4397,10 +4361,6 @@ const AdminDefinition: AdminDefinitionType = {
                 url: 'authentication/oauth',
                 title: defineMessage({id: 'admin.sidebar.oauth', defaultMessage: 'OAuth 2.0'}),
                 isHidden: it.any(
-                    it.any(
-                        it.not(it.licensed),
-                        it.licensedForSku('starter'),
-                    ),
                     it.all(
                         it.licensedForFeature('OpenId'),
                         it.not(usesLegacyOauth),
@@ -4727,10 +4687,7 @@ const AdminDefinition: AdminDefinitionType = {
             openid: {
                 url: 'authentication/openid',
                 title: defineMessage({id: 'admin.sidebar.openid', defaultMessage: 'OpenID Connect'}),
-                isHidden: it.any(
-                    it.all(it.not(it.licensedForFeature('OpenId')), it.not(it.cloudLicensed)),
-                    it.not(it.userHasReadPermissionOnResource(RESOURCE_KEYS.AUTHENTICATION.OPENID)),
-                ),
+                isHidden: () => true,
                 schema: {
                     id: 'OpenIdSettings',
                     name: defineMessage({id: 'admin.authentication.openid', defaultMessage: 'OpenID Connect'}),
@@ -5096,9 +5053,7 @@ const AdminDefinition: AdminDefinitionType = {
                 url: 'authentication/openid',
                 isDiscovery: true,
                 title: defineMessage({id: 'admin.sidebar.openid', defaultMessage: 'OpenID Connect'}),
-                isHidden: it.any(
-                    it.any(it.licensedForFeature('OpenId'), it.cloudLicensed),
-                ),
+                isHidden: () => true,
                 schema: {
                     id: 'OpenIdSettings',
                     name: defineMessage({id: 'admin.authentication.openid', defaultMessage: 'OpenID Connect'}),
@@ -5117,9 +5072,7 @@ const AdminDefinition: AdminDefinitionType = {
                 url: 'authentication/gitlab',
                 isDiscovery: true,
                 title: defineMessage({id: 'admin.sidebar.gitlab', defaultMessage: 'GitLab'}),
-                isHidden: it.any(
-                    it.licensedForFeature('OpenId'),
-                ),
+                isHidden: () => true, // GitLab SSO is configured via OAuth 2.0 page in Avapmost
                 schema: {
                     id: 'GitLabSettings',
                     name: defineMessage({id: 'admin.authentication.gitlab', defaultMessage: 'GitLab'}),
@@ -5138,10 +5091,7 @@ const AdminDefinition: AdminDefinitionType = {
                 url: 'authentication/guest_access',
                 title: defineMessage({id: 'admin.sidebar.guest_access', defaultMessage: 'Guest Access'}),
                 searchableStrings: magicLinkSearchableStrings,
-                isHidden: it.any(
-                    it.not(it.licensedForFeature('GuestAccounts')),
-                    it.not(it.userHasReadPermissionOnResource(RESOURCE_KEYS.AUTHENTICATION.GUEST_ACCESS)),
-                ),
+                isHidden: () => true,
                 schema: {
                     id: 'GuestAccountsSettings',
                     name: defineMessage({id: 'admin.authentication.guest_access', defaultMessage: 'Guest Access'}),
@@ -5226,9 +5176,7 @@ const AdminDefinition: AdminDefinitionType = {
                 isDiscovery: true,
                 url: 'authentication/guest_access',
                 title: defineMessage({id: 'admin.sidebar.guest_access', defaultMessage: 'Guest Access'}),
-                isHidden: it.any(
-                    it.licensedForFeature('GuestAccounts'),
-                ),
+                isHidden: () => true,
                 schema: {
                     id: 'GuestAccountsSettings',
                     name: defineMessage({id: 'admin.authentication.guest_access', defaultMessage: 'Guest Access'}),
@@ -5630,14 +5578,11 @@ const AdminDefinition: AdminDefinitionType = {
             />
         ),
         sectionTitle: defineMessage({id: 'admin.sidebar.compliance', defaultMessage: 'Compliance'}),
-        isHidden: it.not(it.userHasReadPermissionOnSomeResources(RESOURCE_KEYS.COMPLIANCE)),
+        isHidden: () => true,
         subsections: {
             custom_policy_form_edit: {
                 url: `compliance/data_retention_settings/custom_policy/:policy_id(${ID_PATH_PATTERN})`,
-                isHidden: it.any(
-                    it.not(it.licensedForFeature('DataRetention')),
-                    it.not(it.userHasReadPermissionOnResource(RESOURCE_KEYS.COMPLIANCE.DATA_RETENTION_POLICY)),
-                ),
+                isHidden: () => true,
                 isDisabled: it.not(it.userHasWritePermissionOnResource(RESOURCE_KEYS.COMPLIANCE.DATA_RETENTION_POLICY)),
                 schema: {
                     id: 'CustomDataRetentionForm',
@@ -5647,10 +5592,7 @@ const AdminDefinition: AdminDefinitionType = {
             },
             custom_policy_form: {
                 url: 'compliance/data_retention_settings/custom_policy',
-                isHidden: it.any(
-                    it.not(it.licensedForFeature('DataRetention')),
-                    it.not(it.userHasReadPermissionOnResource(RESOURCE_KEYS.COMPLIANCE.DATA_RETENTION_POLICY)),
-                ),
+                isHidden: () => true,
                 isDisabled: it.not(it.userHasWritePermissionOnResource(RESOURCE_KEYS.COMPLIANCE.DATA_RETENTION_POLICY)),
                 schema: {
                     id: 'CustomDataRetentionForm',
@@ -5660,10 +5602,7 @@ const AdminDefinition: AdminDefinitionType = {
             },
             global_policy_form: {
                 url: 'compliance/data_retention_settings/global_policy',
-                isHidden: it.any(
-                    it.not(it.licensedForFeature('DataRetention')),
-                    it.not(it.userHasReadPermissionOnResource(RESOURCE_KEYS.COMPLIANCE.DATA_RETENTION_POLICY)),
-                ),
+                isHidden: () => true,
                 isDisabled: it.not(it.userHasWritePermissionOnResource(RESOURCE_KEYS.COMPLIANCE.DATA_RETENTION_POLICY)),
                 schema: {
                     id: 'GlobalDataRetentionForm',
@@ -5677,10 +5616,7 @@ const AdminDefinition: AdminDefinitionType = {
                     adminDefinitionMessages.data_retention_title,
                     ...dataRetentionSearchableStrings,
                 ],
-                isHidden: it.any(
-                    it.not(it.licensedForFeature('DataRetention')),
-                    it.not(it.userHasReadPermissionOnResource(RESOURCE_KEYS.COMPLIANCE.DATA_RETENTION_POLICY)),
-                ),
+                isHidden: () => true,
                 isDisabled: it.not(it.userHasWritePermissionOnResource(RESOURCE_KEYS.COMPLIANCE.DATA_RETENTION_POLICY)),
                 schema: {
                     id: 'DataRetentionSettings',
@@ -5692,9 +5628,7 @@ const AdminDefinition: AdminDefinitionType = {
                 url: 'compliance/data_retention',
                 isDiscovery: true,
                 title: defineMessage({id: 'admin.sidebar.dataRetentionPolicy', defaultMessage: 'Data Retention Policy'}),
-                isHidden: it.any(
-                    it.licensedForFeature('DataRetention'),
-                ),
+                isHidden: () => true,
                 schema: {
                     id: 'DataRetentionSettings',
                     name: adminDefinitionMessages.data_retention_title,
@@ -5713,10 +5647,7 @@ const AdminDefinition: AdminDefinitionType = {
                 url: 'compliance/export',
                 title: defineMessage({id: 'admin.sidebar.complianceExport', defaultMessage: 'Compliance Export'}),
                 searchableStrings: messageExportSearchableStrings,
-                isHidden: it.any(
-                    it.not(it.licensedForFeature('MessageExport')),
-                    it.not(it.userHasReadPermissionOnResource(RESOURCE_KEYS.COMPLIANCE.COMPLIANCE_EXPORT)),
-                ),
+                isHidden: () => true,
                 isDisabled: it.not(it.userHasWritePermissionOnResource(RESOURCE_KEYS.COMPLIANCE.COMPLIANCE_EXPORT)),
                 schema: {
                     id: 'MessageExportSettings',
@@ -5728,9 +5659,7 @@ const AdminDefinition: AdminDefinitionType = {
                 isDiscovery: true,
                 url: 'compliance/export',
                 title: defineMessage({id: 'admin.sidebar.complianceExport', defaultMessage: 'Compliance Export'}),
-                isHidden: it.any(
-                    it.licensedForFeature('MessageExport'),
-                ),
+                isHidden: () => true,
                 schema: {
                     id: 'MessageExportSettings',
                     name: defineMessage({id: 'admin.complianceExport.title', defaultMessage: 'Compliance Export'}),
@@ -5748,10 +5677,7 @@ const AdminDefinition: AdminDefinitionType = {
             audits: {
                 url: 'compliance/monitoring',
                 title: defineMessage({id: 'admin.sidebar.complianceMonitoring', defaultMessage: 'Compliance Monitoring'}),
-                isHidden: it.any(
-                    it.not(it.licensedForFeature('Compliance')),
-                    it.not(it.userHasReadPermissionOnResource(RESOURCE_KEYS.COMPLIANCE.COMPLIANCE_MONITORING)),
-                ),
+                isHidden: () => true,
                 isDisabled: it.not(it.userHasWritePermissionOnResource(RESOURCE_KEYS.COMPLIANCE.COMPLIANCE_MONITORING)),
                 searchableStrings: auditSearchableStrings,
                 schema: {
@@ -5822,11 +5748,7 @@ const AdminDefinition: AdminDefinitionType = {
             audit_logging: {
                 url: 'compliance/audit_logging',
                 title: defineMessage({id: 'admin.sidebar.audit_logging_experimental', defaultMessage: 'Audit Logging'}),
-                isHidden: it.any(
-                    it.not(it.userHasReadPermissionOnResource(RESOURCE_KEYS.EXPERIMENTAL.FEATURES)),
-                    it.configIsFalse('FeatureFlags', 'ExperimentalAuditSettingsSystemConsoleUI'),
-                    it.not(it.minLicenseTier(LicenseSkus.Enterprise)),
-                ),
+                isHidden: () => true,
                 schema: {
                     id: 'ExperimentalAuditSettings',
                     isBeta: true,
@@ -5967,10 +5889,7 @@ const AdminDefinition: AdminDefinitionType = {
                 url: 'compliance/custom_terms_of_service',
                 title: defineMessage({id: 'admin.sidebar.customTermsOfService', defaultMessage: 'Custom Terms of Service'}),
                 searchableStrings: customTermsOfServiceSearchableStrings,
-                isHidden: it.any(
-                    it.not(it.licensedForFeature('CustomTermsOfService')),
-                    it.not(it.userHasReadPermissionOnResource(RESOURCE_KEYS.COMPLIANCE.CUSTOM_TERMS_OF_SERVICE)),
-                ),
+                isHidden: () => true,
                 isDisabled: it.not(it.userHasWritePermissionOnResource(RESOURCE_KEYS.COMPLIANCE.CUSTOM_TERMS_OF_SERVICE)),
                 schema: {
                     id: 'TermsOfServiceSettings',
@@ -5982,9 +5901,7 @@ const AdminDefinition: AdminDefinitionType = {
                 url: 'compliance/custom_terms_of_service',
                 isDiscovery: true,
                 title: defineMessage({id: 'admin.sidebar.customTermsOfService', defaultMessage: 'Custom Terms of Service'}),
-                isHidden: it.any(
-                    it.licensedForFeature('CustomTermsOfService'),
-                ),
+                isHidden: () => true,
                 schema: {
                     id: 'TermsOfServiceSettings',
                     name: customTermsOfServiceMessages.termsOfServiceTitle,

@@ -1,3 +1,85 @@
+# Avapmost
+
+**Avapmost** は [Mattermost](https://mattermost.com) v11 をベースにした、AVAP Co., Ltd. によるフォークです。
+Mattermost v10 → v11 のアップデートでフリーティア (Team Edition) から削除された機能を復元し、業務利用を継続できるよう公開しています。
+
+> **このリポジトリが役立つ方**
+> Mattermost を無償で自社運用していて、v11 へのアップデートで以下の機能が使えなくなり困っている組織・個人を主な対象としています。
+
+---
+
+## Mattermost v11 からの変更点
+
+| 機能 | Mattermost v11 Team Edition | Avapmost |
+|---|---|---|
+| ユーザー数上限 | 有料プランへの誘導 UI あり・上限強制 | 上限撤廃（UI も除去） |
+| CJK 全文検索（日本語・中国語・韓国語） | 削除（Bleve による無料検索が廃止） | 復元（CJKSearch フラグをデフォルト有効化） |
+| GitLab SSO | Professional 以上のみ | 復元（Team Edition でも利用可） |
+| 検索プラグイン (avapmost-search) | なし | 同梱（Elasticsearch + セマンティック検索対応） |
+
+その他のリブランディング変更：
+- 製品名・ロゴ・アイコンを Avapmost に変更（商標ガイドライン準拠）
+- エンタープライズへのアップセル UI を非表示化
+
+---
+
+## ライセンスと適法性
+
+本リポジトリは Mattermost のライセンス条項に従って作成されています。
+
+### 準拠したライセンス条項
+
+Mattermost のソースコードには複数のライセンスが適用されており、本フォークは各条項を遵守しています。
+
+**サーバー側 Go コード (`server/` 配下の大部分)**
+[GNU AGPL v3.0](LICENSE.txt) に基づきます。AGPL はフォーク・改変・再配布を認めており、その際にソースコードを公開する義務があります。本リポジトリの公開がその義務の履行に相当します。
+
+**フロントエンド コード (`webapp/` 配下)**
+[Apache License v2.0](LICENSE.txt) に基づきます（LICENSE.txt 内の Mattermost Licensing ポリシーにて `webapp/ and all subdirectories thereof` が Apache v2.0 の対象と明記されています）。Apache v2.0 は改変・再配布を許可しています。
+
+**エンタープライズコード (`server/enterprise/` 配下)**
+Mattermost Source Available License（有償ライセンス要）の対象です。**本フォークはこのディレクトリを一切変更していません。**
+
+**商標**
+"Mattermost" の商標は Mattermost, Inc. に帰属します。商標ガイドライン（[Trademark Standards of Use](https://mattermost.com/trademark-standards-of-use/)）に従い、製品名・ロゴを "Avapmost" に変更しています。ログインフッターおよび About ダイアログの Mattermost, Inc. 著作権表示は原文のまま保持しています。
+
+### 免責事項
+
+本リポジトリは現状有姿で提供されます。セキュリティパッチの適用は利用者の責任において行ってください。Mattermost, Inc. のサポート対象外となります。
+
+---
+
+## Docker イメージ
+
+```bash
+docker pull avap.plus/public/avapmost:latest
+```
+
+バージョン履歴は [VERSIONS.md](VERSIONS.md) を参照してください。
+
+---
+
+## ビルド方法
+
+```bash
+# 開発環境の起動
+make dev-start
+
+# Docker イメージのビルド
+make image-build-fast
+
+# イメージのビルド & push
+make image-push TAG=11.5.0-avap.1
+```
+
+詳細は [Makefile](Makefile) を参照してください。
+
+---
+
+*以下はオリジナルの Mattermost README です。*
+
+---
+
 # [![Mattermost logo](https://user-images.githubusercontent.com/7205829/137170381-fe86eef0-bccc-4fdd-8e92-b258884ebdd7.png)](https://mattermost.com)
 
 [Mattermost](https://mattermost.com) is an open core, self-hosted collaboration platform that offers chat, workflow automation, voice calling, screen sharing, and AI integration. This repo is the primary source for core development on the Mattermost platform; it's written in Go and React, runs as a single Linux binary, and relies on PostgreSQL. A new compiled version is released under an MIT license every month on the 16th.

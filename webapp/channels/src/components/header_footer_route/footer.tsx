@@ -26,7 +26,7 @@ const Footer = () => {
                 key='footer-copyright'
                 className='footer-copyright'
             >
-                {`© ${new Date().getFullYear()} Mattermost Inc.`}
+                {`© ${new Date().getFullYear()} AVAP Co., Ltd. | Based on Mattermost © Mattermost, Inc.`}
             </span>
             {AboutLink && (
                 <ExternalLink
